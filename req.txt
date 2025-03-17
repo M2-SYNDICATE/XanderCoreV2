@@ -2,3 +2,4 @@ rich
 subprocess.run
 pymorphy3
 fuzzywuzzy
+python-Levenshtein
