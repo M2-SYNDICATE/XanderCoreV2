@@ -1,4 +1,4 @@
 rich
-subrocess.run
+subprocess.run
 pymorphy3
 fuzzywuzzy
