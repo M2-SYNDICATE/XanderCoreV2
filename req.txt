@@ -1,0 +1,4 @@
+rich
+subrocess.run
+pymorphy3
+fuzzywuzzy
