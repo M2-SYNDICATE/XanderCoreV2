@@ -3,3 +3,4 @@ subprocess.run
 pymorphy3
 fuzzywuzzy
 python-Levenshtein
+data/MicroStreamLibAndWW/wakeword-0.1.0-cp313-cp313-manylinux_2_39_x86_64.whl
