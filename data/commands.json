@@ -8,14 +8,11 @@
       {"вк": "firefox https://vk.com/"}, 
       {"терминал":"kitty"}
     ],
-    "закрыть": [
-      {"телеграмм":"telegram-desktop"}, 
-      {"дискорд":"discord"}, 
-      {"браузер":"firefox"}, 
-      {"ютуб": "firefox https://youtube.com/"},  
-      {"вк": "firefox https://vk.com/"}, 
-      {"терминал":"kitty"}
+    "ничего":[{"":""}],
+    "адаптировать":[
+      {"цвета терминала": "&test.sh"}
     ]
+
   }
 }
 

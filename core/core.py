@@ -65,9 +65,10 @@ class Sequential(Runnable):
 class Core:
     """Финальный пайплайн"""
 
-    def __init__(self, pipeline: Runnable, exception_handler: Callable):
+    def __init__(self, pipeline: Runnable, exception_handler: Callable, verbose_except_output: bool=False):
         self.pipeline = pipeline
         self.exception_handler = exception_handler
+        self.veo = verbose_except_output
 
     def execute(self, input_data: Any) -> Any:
         def process(step: Runnable, data: Any) -> Any:
@@ -84,7 +85,7 @@ class Core:
                 try:
                     return step.invoke(data)
                 except Exception as e:
-                    self.exception_handler(e)
+                    self.exception_handler(e, self.veo)
 
         return process(self.pipeline, input_data)
 
