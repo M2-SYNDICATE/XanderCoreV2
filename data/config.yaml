@@ -1,0 +1,33 @@
+commands:
+  # Команда с аргументами из списка
+  - template: "открыть {app}"
+    action: ""
+    arguments:
+      app:
+        - браузер->firefox
+        - телеграм->telegram-desktop
+        - дискорд->discord
+        - терминал->kitty
+
+  # Команда с аргументом из текста
+  - template: "найди в интернете {query}"
+    action: search_internet
+
+  # Команда без аргументов
+  - template: "включи музыку"
+    action: firefox
+
+  - template: "смени обои"
+    action: ~/randwp/randwp
+
+  - template: "адаптируй цвета"
+    action: Scripts/test.sh
+
+  - template: "ничего"
+    action: ""
+
+  - template: "ещё"
+    action: retry
+
+  - template: "снова"
+    action: retry

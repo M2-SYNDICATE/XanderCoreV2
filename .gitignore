@@ -1,6 +1,8 @@
 /xander_core_v2_venv/
 /modules/wwmodel/
 /modules/TxtCommandProcessor/BACKUP/
+/data/big_model
+/data/MicroStreamLib
 **/__pycache__/
 NOTE
-test.py
+test*.py

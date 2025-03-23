@@ -1,20 +1,26 @@
 import json
+import webbrowser
+import urllib.parse
 import subprocess as sp
 from core import runnable
+from typing import Any
 
 
-@runnable
-def StandartExecutor(data: str) -> None:
-    with open("./data/commands.json") as f:
-        config = json.load(f)
-    print(data)
-    list_of_cmds = config["commands"][data.split(" ")[0]]
-    for l in list_of_cmds:
-        if (arg := l.get(data.split(" ")[1], {})) :
-            if "&" in arg:
-                print("AZAZAZA")
-                sp.run(f"./Scripts/{l[data.split(' ')[1]].replace('&', '')} &", shell=True)
+
+class StandartExecutor:
+    def __init__(self, player: Any | None = None):
+        self.player = player
+
+    @runnable
+    def execute(self, data: str) -> None:
+        if data and not "None" == data:
+            if self.player:
+                self.player.play_ok('')
+
+            if "search" in data:
+                webbrowser.open_new(
+                    f"https://www.google.com/search?q={urllib.parse.quote(data.replace('search_internet', ''))}"
+                )
             else:
-                print("no azaaz")
-                sp.run(f"{l[data.split(' ')[1]]} &> /dev/null &", shell=True)
+                sp.run(f"{data.replace('None', '')} &> /dev/null &", shell=True)
 

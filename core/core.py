@@ -18,7 +18,7 @@ class Runnable:
 
     def invoke(self, input_data: Any) -> Any:
         return self.func(input_data)
-
+       
     def handle_exception(self, exc: Exception, input_data: Any) -> Any:
         raise exc
 
@@ -58,7 +58,7 @@ class Sequential(Runnable):
     def invoke(self, input_data: Any) -> Any:
         result = input_data
         for step in self.steps:
-            result = step.invoke(result)
+            result = step.invoke(result) 
         return result
 
 

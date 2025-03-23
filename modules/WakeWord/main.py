@@ -20,7 +20,7 @@ class WakeWord:
 # Запускаем аудиопоток
         print("Запуск WW...")
        
-    def process(self, e):
+    def process(self):
         while True:
             chunk = self.stream.get_audio_chunk()
             
@@ -29,6 +29,6 @@ class WakeWord:
                 
                 for detection in detections: 
                     if detection is not None:
-                        print("\n\nActive\n\n")
+                        print(f"\n\nActive\nscore: {detection.score:.2f}\n\n")
                         return True
             time.sleep(0.01)

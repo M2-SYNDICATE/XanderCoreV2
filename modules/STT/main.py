@@ -23,6 +23,7 @@ class STT:
         # Инициализируем модель Vosk
         self.model = Model(self.MODEL_PATH)  # убедитесь, что папка "model" содержит нужную модель
         self.recognizer = KaldiRecognizer(self.model, self.DESIRED_SAMPLE_RATE)
+        self.audio.start()
     @runnable
     def recognize(self, e): 
         self.audio.start()
@@ -40,9 +41,10 @@ class STT:
                     text = result.get("text", "")
                     if text:
                         print("\nРезультат:", text)
+                        self.audio.stop()
+                        self.recognizer.Reset()
                         return text
             time.sleep(0.01)  # небольшая задержка для снижения нагрузки
 
-if __name__ == "__main__":
-    stt = STT("../../data/STT_Model", buffer_size=480)
-    print(stt.recognize(''))
+
+

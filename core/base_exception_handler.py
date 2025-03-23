@@ -1,10 +1,15 @@
 import traceback
+from random import choice
+import os
 from rich import print as printr
 from rich.console import Console
 from rich.traceback import install
 import platform
+from .Audio import AudioPlayer
 
 console = Console()
+player = AudioPlayer("./data/Audio/Normal/")
+
 
 def StandardTextExceptionHandler(e, verbose : bool | None=None):
     tb_list = traceback.extract_tb(e.__traceback__)
@@ -22,3 +27,5 @@ def StandardTextExceptionHandler(e, verbose : bool | None=None):
     else:
         console.print(message)
         console.print("\n", *traceback.format_tb(e.__traceback__), f"{e}\n")
+    player.play_err('')
+    
