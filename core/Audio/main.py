@@ -9,9 +9,11 @@ class AudioPlayer:
         self.err_path = path_to_audio_dir + "err"
         self.wake_path = path_to_audio_dir + "wake" 
 
-    def play_ok(self, e):
-
-        source = pyglet.media.load(f"{self.ok_path}/{choice(os.listdir(self.ok_path))}", streaming=False)
+    def play_ok(self, e=None):
+        if e:
+            source = pyglet.media.load(f"{self.ok_path}/{e}", streaming=False)
+        else:
+            source = pyglet.media.load(f"{self.ok_path}/{choice(os.listdir(self.ok_path))}", streaming=False)
         player = pyglet.media.Player()
         player.queue(source)
         player.play()

@@ -1,0 +1,122 @@
+#!/home/user/xander_core_v2/xander_core_v2_venv/bin/python
+import re
+import os
+import sys
+from langchain.agents import Tool, ZeroShotAgent, AgentExecutor, AgentOutputParser
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+from langchain.schema import AgentAction, AgentFinish
+from langchain_ollama import OllamaLLM 
+from langchain_community.utilities.duckduckgo_search import DuckDuckGoSearchAPIWrapper
+
+def shell_escape_single_quotes(s):
+    # В bash одинарные кавычки внутри одинарных обрамлений экранируются последовательностью '\''.
+    return s.replace("'", "'\\''")
+
+def parse_code(text):
+    pattern = r"```(.*?)```"
+    code_blocks = re.findall(pattern, text, flags=re.DOTALL)
+    if code_blocks:
+        return "\n\n".join(list(set(code_blocks)))
+    else:
+        return text
+
+# Функция для создания форматированных инструкций на русском языке
+def create_prompt_format_instructions_ru(tools):
+    tool_list = "\n".join(
+        [f"{tool.name}: {tool.description}" for tool in tools]
+    )
+    return (
+        "Следуй этому формату:\n"
+        "Если необходимо использовать инструмент, выведи:\n"
+        "Операция: <название инструмента>\n"
+        "Операнд: <входные данные>\n\n"
+        "Если инструмент не требуется, выведи итоговый ответ, начиная со строки 'Окончательный ответ:'\n\n"
+        "Доступные инструменты:\n" + tool_list
+    )
+
+# Инициализация LLM
+llm = OllamaLLM(model="qwen2.5:1.5b")
+
+# Инициализация инструмента поиска
+search = DuckDuckGoSearchAPIWrapper()
+tools = [
+    Tool(
+        name="duckduckgo_search",
+        description="Поиск в DuckDuckGo для получения актуальных результатов.",
+        func=search.run
+    )
+]
+
+# Кастомный парсер вывода для распознавания русских маркеров
+
+class RussianOutputParser(AgentOutputParser):
+    def parse(self, text: str):
+        # Ищем наличие блока кода в выводе
+        code_match = re.search(r"```(.*?)```", text, re.DOTALL)
+        code_block = code_match.group(0) if code_match else ""
+        
+        if "Окончательный ответ:" in text:
+            # Берём итоговый ответ после маркера
+            final_answer = text.split("Окончательный ответ:")[-1].strip()
+            # Если найден блок кода, добавляем его в начало итогового ответа
+            if code_block:
+                final_answer = code_block + "\n" + final_answer
+            return AgentFinish({'output': final_answer}, text)
+        
+        # Если маркер итогового ответа не найден, ищем операцию и операнд
+        regex = r"Операция: (.*?)\nОперанд: (.*)"
+        match = re.search(regex, text, re.DOTALL)
+        if match:
+            tool = match.group(1).strip()
+            tool_input = match.group(2).strip()
+            # Если вывод содержит признаки кода, оборачиваем его в блок "```"
+            if "\n" in tool_input or "{" in tool_input or "}" in tool_input:
+                tool_input = "```\n" + tool_input + "\n```"
+            return AgentAction(tool=tool, tool_input=tool_input, log=text)
+        
+        # Если формат не найден, возвращаем весь вывод как итоговый ответ (fallback)
+        return AgentFinish({'output': text.strip()}, text)
+# Определяем префикс и суффикс с инструкциями на русском языке
+prefix = (
+    "Ты ассистент. Отвечай исключительно на русском языке. "
+    "Если для ответа необходимо использовать инструмент, соблюдай формат:\n"
+    "Операция: <название инструмента>\n"
+    "Операнд: <входные данные>\n"
+    "Когда готов дать итоговый ответ, начинай строку с 'Окончательный ответ:'\n"
+)
+
+suffix = """
+Вопрос: {input}
+{agent_scratchpad}"""
+
+# Создаем форматированные инструкции
+format_instructions = create_prompt_format_instructions_ru(tools)
+
+# Собираем итоговый шаблон промпта
+template = prefix + "\n" + format_instructions + "\n" + suffix
+
+# Создаем кастомный PromptTemplate
+custom_prompt = PromptTemplate(
+    template=template,
+    input_variables=["input", "agent_scratchpad"]
+)
+
+# Создаем цепочку LLMChain, которая объединяет LLM и промпт
+llm_chain = LLMChain(llm=llm, prompt=custom_prompt)
+
+# Создаем агента ZeroShotAgent с использованием llm_chain, инструментов и кастомного парсера
+agent = ZeroShotAgent(llm_chain=llm_chain, tools=tools, output_parser=RussianOutputParser())
+
+# Создаем исполнитель агента
+agent_executor = AgentExecutor.from_agent_and_tools(agent=agent, tools=tools, verbose=True)
+
+# Цикл для ввода запросов
+
+result = agent_executor.run("напиши код "+" ".join(sys.argv[1:]))
+commmand = "wtype '" + shell_escape_single_quotes(parse_code(result)) + "'"
+print(commmand)
+os.system(commmand)
+
+
+

@@ -1,0 +1,98 @@
+#!/home/user/xander_core_v2/xander_core_v2_venv/bin/python
+
+import sys
+import os
+
+from fuzzywuzzy import process
+
+def text_to_time(text):
+    # Словари для преобразования слов в числа
+    единицы = {
+        "ноль": 0,
+        "один": 1,
+        "два": 2,
+        "три": 3,
+        "четыре": 4,
+        "пять": 5,
+        "шесть": 6,
+        "семь": 7,
+        "восемь": 8,
+        "девять": 9
+    }
+    десятки = {
+        "десять": 10,
+        "двадцать": 20,
+        "тридцать": 30,
+        "сорок": 40,
+        "пятьдесят": 50
+    }
+    составные = {
+        "одиннадцать": 11,
+        "двенадцать": 12,
+        "тринадцать": 13,
+        "четырнадцать": 14,
+        "пятнадцать": 15,
+        "шестнадцать": 16,
+        "семнадцать": 17,
+        "восемнадцать": 18,
+        "девятнадцать": 19
+    }
+
+    # Объединяем все слова в один список для нечеткого поиска
+    all_words = list(единицы.keys()) + list(десятки.keys()) + list(составные.keys())
+
+    # Функция для нечеткого поиска слова
+    def fuzzy_match(word, choices, threshold=80):
+        match, score = process.extractOne(word, choices)
+        if score >= threshold:
+            return match
+        return None
+
+    # Вспомогательная функция для разбора числа из слов
+    def parse_number(words, index):
+        if index >= len(words):
+            return None, index
+        word = words[index]
+        matched_word = fuzzy_match(word, all_words)
+        if matched_word in составные:
+            return составные[matched_word], index + 1
+        elif matched_word in десятки:
+            if index + 1 < len(words):
+                next_word = fuzzy_match(words[index + 1], all_words)
+                if next_word in единицы:
+                    return десятки[matched_word] + единицы[next_word], index + 2
+            return десятки[matched_word], index + 1
+        elif matched_word in единицы:
+            return единицы[matched_word], index + 1
+        else:
+            return None, index + 1
+
+    # Разбиваем текст на слова и приводим к нижнему регистру
+    words = text.lower().split()
+    numbers = []
+    index = 0
+
+    # Парсим числа из слов
+    while index < len(words):
+        number, index = parse_number(words, index)
+        if number is not None:
+            numbers.append(number)
+
+    # Проверяем, достаточно ли чисел для часов и минут
+    if len(numbers) < 2:
+        return "Invalid input"
+
+    # Берем первые два числа как часы и минуты
+    hours = numbers[0]
+    minutes = numbers[1]
+
+    # Форматируем результат в HH:MM
+    return f"{hours:02d}:{minutes:02d}"
+
+if __name__ == "__main__":
+    args = sys.argv
+    time = text_to_time(" ".join(args[2:]))
+    with open('time.txt', 'a') as f:
+        f.write(f'{" ".join(args[1:])} => {time}"\n"')
+    os.system(f"notify -n {time} НАПОМИНАЛКА")
+

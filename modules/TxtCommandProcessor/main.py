@@ -69,11 +69,12 @@ class CommandProcessor:
                 # Для аргументов с ограниченным списком
                 for arg_name in arg_names:
                     if arg_name in arguments:
-                        choices = arguments[arg_name]
+                        choices = [arg.split("->")[0] for arg in arguments[arg_name]]
+                        args = [arg.split("->")[1] for arg in arguments[arg_name]]
                         best_arg, score = process.extractOne(arg_part, choices, scorer=fuzz.ratio)
+                        print(f"{best_arg = }\n{score = }")
                         if score >= self.SIMILARITY_THRESHOLD/2:
-                            #print(f"{best_arg = }\n{score = }")
-                            return best_arg.split("->")[1]
+                            return args[choices.index(best_arg)]
             else:
                 # Для аргументов из текста
                 return arg_part
