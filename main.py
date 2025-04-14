@@ -7,8 +7,6 @@ from modules.StandardExecutor import StandartExecutor
 from modules.TxtCommandProcessor import TxtCommandProcessor
 from core import StandardTextExceptionHandler
 
-from time import time
-
 
 
 if __name__ == "__main__":
@@ -33,6 +31,7 @@ if __name__ == "__main__":
     while True:
         try:
             if wakeword.process():
+                
                 print("🔔 Wake word активирован!")
 
                 player.play_wake()
@@ -41,8 +40,8 @@ if __name__ == "__main__":
                 print("SESSION_STARTED")
                 session.start()
                 print("session closed")
+                
 
         except KeyboardInterrupt:
             print("👋 Завершение по Ctrl+C")
             break
-

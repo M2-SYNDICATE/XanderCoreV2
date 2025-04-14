@@ -1,5 +1,6 @@
 import threading
 
+
 class DialogSession:
     def __init__(self, core, timeout):
         self.core = core  # Основной объект для обработки команд
@@ -19,23 +20,23 @@ class DialogSession:
         """Цикл обработки команд."""
         while self.active:
             try:
-                # Ожидание команды от пользователя
- # Если команда не распознана, продолжаем слушать
+                if self.active:
+                    # Выполнение команды через основной пайплайн
+                    self.core.start("")
+                    while self.core.generator is not None:
+                        result = self.core.run_next()
+                        #print(f"{result = }")
+                        if result is None:
+                            break  # Команда выполнена
 
-                # Выполнение команды через основной пайплайн
-                self.core.start("")
-                while self.core.generator is not None:
-                    result = self.core.run_next()
-                    if result is None:
-                        break  # Команда выполнена
-
-                # После выполнения команды сбрасываем таймер
-                self._reset_timer()
+                    # После выполнения команды сбрасываем таймер
+                    self._reset_timer()
+                else:
+                    self.stop()
             except Exception as e:
-                print(f"⚠️ Ошибка: {e}")
+                self.core.exception_handler(e, self.core.veo)
                 self.stop()
                 break
-
 
     def _reset_timer(self):
         """Сбрасывает таймер бездействия."""
@@ -53,9 +54,17 @@ class DialogSession:
             self.active = False
             if self.timer:
                 self.timer.cancel()
+            steps = self.core.get_original_objects()
+            for obj in steps:
+                if not callable(obj):
+                    try:
+                        obj.terminate()
+                        #print(f"terminated: {obj}")
+                    except:
+                        #print(obj)
+                        pass#TODO: Переделать эту часть на hasattr
             self.core.generator = None
             print("⏹️ Диалог завершён. Ожидание wake word.")
-            return
 
     def manual_stop(self):
         """Ручная остановка сессии."""
