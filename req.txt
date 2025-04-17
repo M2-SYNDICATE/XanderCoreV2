@@ -3,3 +3,9 @@ subprocess.run
 pymorphy3
 fuzzywuzzy
 python-Levenshtein
+tensorflow
+pyyaml
+librosa
+vosk
+pyaudio
+pyglet
