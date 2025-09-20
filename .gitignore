@@ -1,4 +1,5 @@
 /xander_core_v2_venv/
+/xander_core_v2_venv3.10/
 /modules/wwmodel/
 /modules/TxtCommandProcessor/BACKUP/
 /data/big_model
@@ -7,3 +8,8 @@
 NOTE
 TODO
 test*.py
+**/*.log
+/data/Audio/Crazy
+**/*.txt
+**/.env
+**/.secret-scanner-baseline.json
