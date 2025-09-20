@@ -13,3 +13,4 @@ test*.py
 **/*.txt
 **/.env
 **/.secret-scanner-baseline.json
+**/.gitignore
