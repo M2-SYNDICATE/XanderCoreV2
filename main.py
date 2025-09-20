@@ -2,7 +2,8 @@ from core import Core
 from core import DialogSession
 from modules.STT import STT
 from core.Audio import AudioPlayer
-from modules.WakeWord import WakeWord
+#from modules.WakeWord import WakeWord
+from modules.CustomWakeWord import CustomWakeWord
 from modules.StandardExecutor import StandartExecutor
 from modules.TxtCommandProcessor import TxtCommandProcessor
 from core import StandardTextExceptionHandler
@@ -12,7 +13,8 @@ from core import StandardTextExceptionHandler
 if __name__ == "__main__":
     processor = TxtCommandProcessor(config_path="./data/config.yaml")
     stt = STT("./data/STT_Model")
-    wakeword = WakeWord("./data/WWModel/xander_up.rpw", 0.55)
+    #wakeword = WakeWord("./data/WWModel/xander_up.rpw", 0.55)
+    wakeword = CustomWakeWord("./data/WWModel/ww_model_super_new.tflite", 0.5)
     player = AudioPlayer("./data/Audio/Normal/")
     executor = StandartExecutor(player=player )
 
@@ -31,7 +33,7 @@ if __name__ == "__main__":
     while True:
         try:
             if wakeword.process():
-                
+
                 print("🔔 Wake word активирован!")
 
                 player.play_wake()
@@ -40,7 +42,7 @@ if __name__ == "__main__":
                 print("SESSION_STARTED")
                 session.start()
                 print("session closed")
-                
+
 
         except KeyboardInterrupt:
             print("👋 Завершение по Ctrl+C")
